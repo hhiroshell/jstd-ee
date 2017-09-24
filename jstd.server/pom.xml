@@ -5,14 +5,17 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>jp.gr.java_conf.hhiroshell</groupId>
-    <artifactId>sample</artifactId>
-    <version>0.1</version>
+    <artifactId>jstd.server</artifactId>
 
     <packaging>war</packaging>
 
+    <parent>
+        <groupId>jp.gr.java_conf.hhiroshell</groupId>
+        <artifactId>jstd</artifactId>
+        <version>0.1</version>
+    </parent>
+
     <properties>
-        <java.version>1.8</java.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <wls-admin-url>t3://localhost:7001</wls-admin-url>
         <wls-admin-user>weblogic</wls-admin-user>
         <wls-admin-password>wlsadmin0</wls-admin-password>
@@ -31,16 +34,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-            <!-- WebLogic Server 12c Maven Plugin -->
             <plugin>
                 <groupId>com.oracle.weblogic</groupId>
                 <artifactId>weblogic-maven-plugin</artifactId>
