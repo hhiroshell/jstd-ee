@@ -1,4 +1,4 @@
-package jp.gr.java_conf.hhiroshell.accs_sample.javaee.controller;
+package jp.gr.java_conf.hhiroshell.jstd.server.sample.jaxrs;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

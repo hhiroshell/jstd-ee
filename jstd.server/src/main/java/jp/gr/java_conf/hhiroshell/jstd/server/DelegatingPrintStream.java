@@ -1,4 +1,4 @@
-package jp.gr.java_conf.hhiroshell.accs_sample.javaee.websocket;
+package jp.gr.java_conf.hhiroshell.jstd.server;
 
 import java.io.*;
 
