@@ -13,8 +13,7 @@ public class Main {
         try {
             uri = URI.create(args[0]);
         } catch (IllegalArgumentException e) {
-            System.out.println(
-                    "[JSTD]: ERROR: The given uri string violates RFC2396 syntax...");
+            Utils.jstdPrintln("ERROR: The given uri string violates RFC2396 syntax...");
             System.exit(1);
         }
 

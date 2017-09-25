@@ -50,10 +50,9 @@ public class SocketClient {
 
     @OnError
     public void onError(Session session, Throwable cause) {
-        System.out.println("[JSTD]: ERROR!");
-        System.out.println("---------------------------------");
-        System.out.println("Session ID: "+ session.getId());
-        System.out.println("Cause: "+ cause.getMessage());
+        Utils.jstdPrintln("ERROR!");
+        Utils.jstdPrintln("Session ID: "+ session.getId());
+        Utils.jstdPrintln("Cause: "+ cause.getMessage());
     }
 
     @OnMessage
@@ -65,13 +64,13 @@ public class SocketClient {
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         connected = false;
-        System.out.println("[JSTD]: Connection closed.");
+        Utils.jstdPrintln("Connection closed.");
     }
 
     @OnOpen
     public void onOpen(Session session) {
-        System.out.println("[JSTD]: Successfully connected to the server.");
-        System.out.println("[JSTD]: Server address: " + uri);
+        Utils.jstdPrintln("Successfully connected to the server.");
+        Utils.jstdPrintln("Server address: " + uri);
     }
 
 }
