@@ -9,7 +9,6 @@ import javax.ws.rs.QueryParam;
  *
  * @author hhayakaw
  */
-@Path("/rest")
 public class RestController {
 
     /**
