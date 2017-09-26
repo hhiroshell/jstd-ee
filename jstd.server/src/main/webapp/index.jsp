@@ -18,9 +18,6 @@
 </head>
 
 <body>
-    <header>
-        <h1>サイト内におけるタイトル</h1>
-    </header>
     <form action="./logout" method="post">
         <h1>Welcome <strong><%= username %></strong> !</h1>
         <h2><%= nowTime %></h2>
