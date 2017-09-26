@@ -1,8 +1,24 @@
 <%@ page contentType="text/html; charset=utf-8" %>
 <%@ page import="jp.gr.java_conf.hhiroshell.jstd.server.sample.servlet.LoginUtil" %>
 <%
-    String username = LoginUtil.getUserName(request, response, false);
-    if (username != null && !username.isEmpty()) {
+    String authenticatedUser = LoginUtil.getUserName(request, response, false);
+    // ログイン済み
+    if (authenticatedUser != null && !authenticatedUser.isEmpty()) {
+        response.sendRedirect("./index.jsp");
+        return;
+    }
+    // 未ログイン
+    if ("POST".equals(request.getMethod())) {
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        if (username != null && !username.isEmpty()) {
+            authenticatedUser = LoginUtil.authenticate(username, password);
+        }
+        if (authenticatedUser == null) {
+            response.sendRedirect("./login.jsp");
+            return;
+        }
+        request.getSession().setAttribute("username", authenticatedUser);
         response.sendRedirect("./index.jsp");
         return;
     }
@@ -18,7 +34,7 @@
 </head>
 
 <body>
-    <form action="./login" method="post">
+    <form  method="post">
         <h1>Sign In to your account...</h1>
         <input type="username" name="username" value="" placeholder="Username"/>
         <input type="password" name="password" value="" placeholder="Password"/>

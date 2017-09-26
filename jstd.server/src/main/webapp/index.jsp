@@ -18,7 +18,7 @@
 </head>
 
 <body>
-    <form action="./logout" method="post">
+    <form action="./logout.jsp" method="post">
         <h1>Welcome <strong><%= username %></strong> !</h1>
         <h2><%= nowTime %></h2>
         <button type="submit">Sign Out</button>

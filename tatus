@@ -1,0 +1,93 @@
+[1mdiff --git a/jstd.server/src/main/java/jp/gr/java_conf/hhiroshell/jstd/server/sample/servlet/LoginUtil.java b/jstd.server/src/main/java/jp/gr/java_conf/hhiroshell/jstd/server/sample/servlet/LoginUtil.java[m
+[1mindex 6d7e321..b74317e 100755[m
+[1m--- a/jstd.server/src/main/java/jp/gr/java_conf/hhiroshell/jstd/server/sample/servlet/LoginUtil.java[m
+[1m+++ b/jstd.server/src/main/java/jp/gr/java_conf/hhiroshell/jstd/server/sample/servlet/LoginUtil.java[m
+[36m@@ -64,4 +64,17 @@[m [mpublic class LoginUtil {[m
+         return username;[m
+     }[m
+ [m
+[32m+[m[32m    public static String authenticate(String username, String password) {[m
+[32m+[m[32m        if ("password".equals(password)) {[m
+[32m+[m[32m            return username;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        return null;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public static void logout(HttpServletRequest request, HttpServletResponse response)[m
+[32m+[m[32m            throws IOException {[m
+[32m+[m[32m        request.getSession().invalidate();[m
+[32m+[m[32m        response.sendRedirect("./index.jsp");[m
+[32m+[m[32m    }[m
+[32m+[m
+ }[m
+[1mdiff --git a/jstd.server/src/main/webapp/WEB-INF/web.xml b/jstd.server/src/main/webapp/WEB-INF/web.xml[m
+[1mindex 772314a..78d5f54 100755[m
+[1m--- a/jstd.server/src/main/webapp/WEB-INF/web.xml[m
+[1m+++ b/jstd.server/src/main/webapp/WEB-INF/web.xml[m
+[36m@@ -1,10 +1,9 @@[m
+ <?xml version="1.0" encoding="UTF-8"?>[m
+[31m-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+[32m+[m[32m<web-app version="2.5"[m
+          xmlns="http://java.sun.com/xml/ns/javaee"[m
+[32m+[m[32m         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"[m
+          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee[m
+[31m-                             http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"[m
+[31m-         id="WebApp_ID"[m
+[31m-         version="3.0">[m
+[32m+[m[32m                             http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">[m
+ [m
+     <welcome-file-list>[m
+         <welcome-file>index.html</welcome-file>[m
+[1mdiff --git a/jstd.server/src/main/webapp/index.jsp b/jstd.server/src/main/webapp/index.jsp[m
+[1mindex bba6b74..0a37985 100755[m
+[1m--- a/jstd.server/src/main/webapp/index.jsp[m
+[1m+++ b/jstd.server/src/main/webapp/index.jsp[m
+[36m@@ -18,7 +18,7 @@[m
+ </head>[m
+ [m
+ <body>[m
+[31m-    <form action="./logout" method="post">[m
+[32m+[m[32m    <form action="./logout.jsp" method="post">[m
+         <h1>Welcome <strong><%= username %></strong> !</h1>[m
+         <h2><%= nowTime %></h2>[m
+         <button type="submit">Sign Out</button>[m
+[1mdiff --git a/jstd.server/src/main/webapp/login.jsp b/jstd.server/src/main/webapp/login.jsp[m
+[1mindex b8367ec..ac8a1cd 100755[m
+[1m--- a/jstd.server/src/main/webapp/login.jsp[m
+[1m+++ b/jstd.server/src/main/webapp/login.jsp[m
+[36m@@ -1,8 +1,24 @@[m
+ <%@ page contentType="text/html; charset=utf-8" %>[m
+ <%@ page import="jp.gr.java_conf.hhiroshell.jstd.server.sample.servlet.LoginUtil" %>[m
+ <%[m
+[31m-    String username = LoginUtil.getUserName(request, response, false);[m
+[31m-    if (username != null && !username.isEmpty()) {[m
+[32m+[m[32m    String authenticatedUser = LoginUtil.getUserName(request, response, false);[m
+[32m+[m[32m    // ログイン済み[m
+[32m+[m[32m    if (authenticatedUser != null && !authenticatedUser.isEmpty()) {[m
+[32m+[m[32m        response.sendRedirect("./index.jsp");[m
+[32m+[m[32m        return;[m
+[32m+[m[32m    }[m
+[32m+[m[32m    // 未ログイン[m
+[32m+[m[32m    if ("POST".equals(request.getMethod())) {[m
+[32m+[m[32m        String username = request.getParameter("username");[m
+[32m+[m[32m        String password = request.getParameter("password");[m
+[32m+[m[32m        if (username != null && !username.isEmpty()) {[m
+[32m+[m[32m            authenticatedUser = LoginUtil.authenticate(username, password);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        if (authenticatedUser == null) {[m
+[32m+[m[32m            response.sendRedirect("./login.jsp");[m
+[32m+[m[32m            return;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        request.getSession().setAttribute("username", authenticatedUser);[m
+         response.sendRedirect("./index.jsp");[m
+         return;[m
+     }[m
+[36m@@ -18,7 +34,7 @@[m
+ </head>[m
+ [m
+ <body>[m
+[31m-    <form action="./login" method="post">[m
+[32m+[m[32m    <form  method="post">[m
+         <h1>Sign In to your account...</h1>[m
+         <input type="username" name="username" value="" placeholder="Username"/>[m
+         <input type="password" name="password" value="" placeholder="Password"/>[m

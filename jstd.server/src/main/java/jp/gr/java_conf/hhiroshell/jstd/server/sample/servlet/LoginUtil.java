@@ -64,4 +64,17 @@ public class LoginUtil {
         return username;
     }
 
+    public static String authenticate(String username, String password) {
+        if ("password".equals(password)) {
+            return username;
+        }
+        return null;
+    }
+
+    public static void logout(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        request.getSession().invalidate();
+        response.sendRedirect("./index.jsp");
+    }
+
 }
