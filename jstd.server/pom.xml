@@ -15,52 +15,21 @@
         <version>0.1</version>
     </parent>
 
-    <properties>
-        <wls-admin-url>t3://localhost:7001</wls-admin-url>
-        <wls-admin-user>weblogic</wls-admin-user>
-        <wls-admin-password>wlsadmin0</wls-admin-password>
-        <wls-targets>AdminServer</wls-targets>
-    </properties>
-
     <dependencies>
+            <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
-            <groupId>com.oracle.weblogic</groupId>
-            <artifactId>weblogic-server-pom</artifactId>
-            <version>12.2.1-0-0</version>
-            <type>pom</type>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/javax.servlet.jsp/javax.servlet.jsp-api -->
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>2.2.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.oracle.weblogic</groupId>
-                <artifactId>weblogic-maven-plugin</artifactId>
-                <version>12.2.1-2-0</version>
-                <executions>
-                    <execution>
-                        <id>wls-redeploy</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>redeploy</goal>
-                        </goals>
-                        <configuration>
-                            <adminurl>${wls-admin-url}</adminurl>
-                            <user>${wls-admin-user}</user>
-                            <password>${wls-admin-password}</password>
-                            <targets>${wls-targets}</targets>
-                            <upload>true</upload>
-                            <remote>false</remote>
-                            <source>${project.build.directory}/${project.build.finalName}.${project.packaging}</source>
-                            <name>${project.build.finalName}</name>
-                            <debug>true</debug>
-                            <verbose>true</verbose>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
