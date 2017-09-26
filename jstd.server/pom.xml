@@ -24,10 +24,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.oracle.weblogic</groupId>
-            <artifactId>weblogic-server-pom</artifactId>
-            <version>12.2.1-0-0</version>
-            <type>pom</type>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
