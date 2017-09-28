@@ -20,6 +20,9 @@
         <wls-admin-user>weblogic</wls-admin-user>
         <wls-admin-password>wlsadmin0</wls-admin-password>
         <wls-targets>AdminServer</wls-targets>
+        <accs-application-name>javaee</accs-application-name>
+        <accs-runtime>javaee</accs-runtime>
+        <accs-notification-email>hiroshi.hayakawa@oracle.com</accs-notification-email>
     </properties>
 
     <dependencies>
@@ -48,13 +51,62 @@
                             <adminurl>${wls-admin-url}</adminurl>
                             <user>${wls-admin-user}</user>
                             <password>${wls-admin-password}</password>
+                            <name>${project.build.finalName}</name>
                             <targets>${wls-targets}</targets>
                             <upload>true</upload>
                             <remote>false</remote>
                             <source>${project.build.directory}/${project.build.finalName}.${project.packaging}</source>
-                            <name>${project.build.finalName}</name>
-                            <debug>true</debug>
                             <verbose>true</verbose>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>wls-undeploy</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>undeploy</goal>
+                        </goals>
+                        <configuration>
+                            <adminurl>${wls-admin-url}</adminurl>
+                            <user>${wls-admin-user}</user>
+                            <password>${wls-admin-password}</password>
+                            <name>${project.build.finalName}</name>
+                            <targets>${wls-targets}</targets>
+                            <remote>false</remote>
+                            <verbose>true</verbose>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>accs-deploy</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>psm</executable>
+                            <arguments>
+                                <argument>accs</argument>
+                                <argument>push</argument>
+                                <argument>-n=${accs-application-name}</argument>
+                                <argument>-i=${accs-notification-email}</argument>
+                                <argument>-r=${accs-runtime}</argument>
+                                <argument>-s=hourly</argument>
+                                <argument>-p=${project.build.directory}/${project.build.finalName}.${project.packaging}</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
