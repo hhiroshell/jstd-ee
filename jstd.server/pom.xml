@@ -101,11 +101,12 @@
                             <arguments>
                                 <argument>accs</argument>
                                 <argument>push</argument>
-                                <argument>-n=${accs-application-name}</argument>
-                                <argument>-i=${accs-notification-email}</argument>
-                                <argument>-r=${accs-runtime}</argument>
-                                <argument>-s=hourly</argument>
-                                <argument>-p=${project.build.directory}/${project.build.finalName}.${project.packaging}</argument>
+                                <argument>--name=${accs-application-name}</argument>
+                                <argument>--notification-email=${accs-notification-email}</argument>
+                                <argument>--runtime=${accs-runtime}</argument>
+                                <argument>--deployment=${project.basedir}/deployment.json</argument>
+                                <argument>--subscription=hourly</argument>
+                                <argument>--archive-path=${project.build.directory}/${project.build.finalName}.${project.packaging}</argument>
                             </arguments>
                         </configuration>
                     </execution>
