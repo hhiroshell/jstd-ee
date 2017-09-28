@@ -12,7 +12,7 @@ import java.io.IOException;
  *
  * @author hhiroshell
  */
-@WebServlet("/logout")
+@WebServlet("web/logout")
 public class LogoutServer extends HttpServlet {
 
     @Override

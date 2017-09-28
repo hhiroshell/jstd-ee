@@ -14,7 +14,7 @@ import java.io.IOException;
  *
  * @author hhiroshell
  */
-@WebServlet("/login")
+@WebServlet("web/login")
 public class LoginServer extends HttpServlet {
 
     @Override
