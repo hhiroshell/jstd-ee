@@ -9,7 +9,7 @@ import javax.websocket.server.ServerEndpoint;
  *
  * @author hhayakaw
  */
-@ServerEndpoint(value = "/castserver")
+@ServerEndpoint(value = "/stdcast")
 public class SysoutCastEndpoint {
 
     @Inject
