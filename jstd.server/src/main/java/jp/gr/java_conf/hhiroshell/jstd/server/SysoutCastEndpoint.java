@@ -28,6 +28,7 @@ public class SysoutCastEndpoint {
     @OnError
     public void error(Throwable t) {
         t.printStackTrace();
+        worker.removeAllClient();
     }
 
     @OnMessage

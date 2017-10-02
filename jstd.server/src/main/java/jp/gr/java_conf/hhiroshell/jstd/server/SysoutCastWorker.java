@@ -4,7 +4,8 @@ import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -17,17 +18,17 @@ class SysoutCastWorker {
 
     private final Map<String, Session> clients = new ConcurrentHashMap<>();
 
-    private Runner runner = null;
-
     private Future<?> runnerFuture;
+
+    private Runner runner = null;
 
     String addClient(Session clientSession) {
         String id = clientSession.getId();
         clients.put(id, clientSession);
         if (runnerFuture == null || runnerFuture.isDone()) {
+            BufferedReader reader = SysoutDelegationManager.setup();
             // no running runner.
-            runner = new Runner();
-            runnerFuture = executor.submit(runner);
+            runnerFuture = executor.submit(runner = new Runner(reader));
         }
         return id;
     }
@@ -44,39 +45,68 @@ class SysoutCastWorker {
         clients.remove(id);
         if (clients.isEmpty()) {
             runner.stop();
+            while (!runnerFuture.isDone()) {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            SysoutDelegationManager.stop();
         }
     }
 
-    class Runner implements Runnable {
+    void removeAllClient() {
+        clients.values().forEach(c -> {
+            if (c.isOpen()) {
+                try {
+                    c.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        clients.clear();
+        runner.stop();
+        while (!runnerFuture.isDone()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        SysoutDelegationManager.stop();
+    }
 
-        private boolean running;
+    private class Runner implements Runnable {
+
+        private boolean running = true;
+
+        private BufferedReader reader;
+
+        private Runner(BufferedReader reader) {
+            this.reader = reader;
+        }
 
         @Override
         public void run() {
-            PipedWriter pipedWriter = new PipedWriter();
-            try (BufferedReader reader = new BufferedReader(new PipedReader(pipedWriter))) {
-                System.out.println("delegating start.");
-                System.setOut(new DelegatingPrintStream(pipedWriter));
-                // ?
-                //System.setErr(new DelegatingPrintStream(pipedWriter));
-                running = true;
-                while (running) {
-                    String line = reader.readLine();
-                    if (line == null || line.length() == 0) {
-                        break;
-                    }
-                    try {
-                        for (Session session : clients.values()) {
-                            session.getBasicRemote().sendText(line);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            while (isActive()) {
+                String line = null;
+                try {
+                    line = reader.readLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                resetSysout();
-                System.out.println("delegating end.");
-            } catch (IOException e) {
-                e.printStackTrace();
+                if (line == null || line.length() == 0) {
+                    break;
+                }
+                try {
+                    for (Session session : clients.values()) {
+                        session.getBasicRemote().sendText(line);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -84,13 +114,8 @@ class SysoutCastWorker {
             running = false;
         }
 
-        private void resetSysout() {
-            System.setOut(new PrintStream(
-                    new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)),
-                    true));
-            System.setErr(new PrintStream(
-                    new BufferedOutputStream(new FileOutputStream(FileDescriptor.err)),
-                    true));
+        private boolean isActive() {
+            return running;
         }
 
     }
