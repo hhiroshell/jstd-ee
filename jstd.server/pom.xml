@@ -20,12 +20,17 @@
         <wls-admin-user>weblogic</wls-admin-user>
         <wls-admin-password>wlsadmin0</wls-admin-password>
         <wls-targets>AdminServer</wls-targets>
-        <accs-application-name>javaee</accs-application-name>
+        <accs-application-name>jstd</accs-application-name>
         <accs-runtime>javaee</accs-runtime>
         <accs-notification-email>hiroshi.hayakawa@oracle.com</accs-notification-email>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.ricksbrown</groupId>
+            <artifactId>cowsay</artifactId>
+            <version>1.0.3</version>
+        </dependency>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
