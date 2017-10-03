@@ -8,30 +8,42 @@ class SysoutDelegationManager {
 
     private static BufferedReader reader = null;
 
-    private static DelegatingPrintStream delegatingPrintStream = null;
+    private static DelegatingPrintStream delegatingStream = null;
 
-    static BufferedReader setup() {
-        pipedWriter = new PipedWriter();
-        try {
-            reader = new BufferedReader(new PipedReader(pipedWriter));
-        } catch (IOException e) {
-            e.printStackTrace();
+    private static PrintStream stdout = null;
+
+    static BufferedReader setup(boolean reset) throws IOException {
+        if (System.out instanceof DelegatingPrintStream && !reset) {
+            return reader;
         }
-        delegatingPrintStream = new DelegatingPrintStream(pipedWriter);
-        System.setOut(delegatingPrintStream);
+        closeAllResources();
+        pipedWriter = new PipedWriter();
+        reader = new BufferedReader(new PipedReader(pipedWriter));
+        delegatingStream = new DelegatingPrintStream(pipedWriter);
+        System.setOut(delegatingStream);
         return reader;
     }
 
-    static void stop() {
-        try {
+    static void teardown() throws IOException {
+        closeAllResources();
+        stdout = new PrintStream(
+                new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)), true);
+        System.setOut(stdout);
+    }
+
+    private static void closeAllResources() throws IOException {
+        if (pipedWriter != null) {
             pipedWriter.close();
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        System.setOut(new PrintStream(
-                new BufferedOutputStream(new FileOutputStream(FileDescriptor.out)),
-                true));
+        if (reader != null) {
+            reader.close();
+        }
+        if (delegatingStream != null) {
+            delegatingStream.close();
+        }
+        if (stdout != null) {
+            stdout.close();
+        }
     }
 
 }

@@ -4,8 +4,7 @@ import javax.annotation.Resource;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.Session;
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
@@ -22,29 +21,25 @@ class SysoutCastWorker {
 
     private Runner runner = null;
 
-    String addClient(Session clientSession) {
+    String addClient(Session clientSession) throws IOException {
         String id = clientSession.getId();
         clients.put(id, clientSession);
         if (runnerFuture == null || runnerFuture.isDone()) {
-            BufferedReader reader = SysoutDelegationManager.setup();
             // no running runner.
+            BufferedReader reader = SysoutDelegationManager.setup(true);
             runnerFuture = executor.submit(runner = new Runner(reader));
         }
         return id;
     }
 
-    void removeClient(String id) {
-        try {
-            Session client = clients.get(id);
-            if (client != null || client.isOpen()) {
-                client.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    void removeClient(String id) throws IOException {
+        Session client = clients.get(id);
+        if (client != null || client.isOpen()) {
+            client.close();
         }
         clients.remove(id);
         if (clients.isEmpty()) {
-            runner.stop();
+            runner.deactivate();
             while (!runnerFuture.isDone()) {
                 try {
                     Thread.sleep(500);
@@ -52,22 +47,18 @@ class SysoutCastWorker {
                     e.printStackTrace();
                 }
             }
-            SysoutDelegationManager.stop();
+            SysoutDelegationManager.teardown();
         }
     }
 
-    void removeAllClient() {
-        clients.values().forEach(c -> {
-            if (c.isOpen()) {
-                try {
-                    c.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    void removeAllClient() throws IOException {
+        for (Session client : clients.values()) {
+            if (client.isOpen()) {
+                client.close();
             }
-        });
+        }
         clients.clear();
-        runner.stop();
+        runner.deactivate();
         while (!runnerFuture.isDone()) {
             try {
                 Thread.sleep(500);
@@ -75,12 +66,12 @@ class SysoutCastWorker {
                 e.printStackTrace();
             }
         }
-        SysoutDelegationManager.stop();
+        SysoutDelegationManager.teardown();
     }
 
     private class Runner implements Runnable {
 
-        private boolean running = true;
+        private boolean isActive = false;
 
         private BufferedReader reader;
 
@@ -90,7 +81,8 @@ class SysoutCastWorker {
 
         @Override
         public void run() {
-            while (isActive()) {
+            isActive = true;
+            while (isActive) {
                 String line = null;
                 try {
                     line = reader.readLine();
@@ -110,12 +102,8 @@ class SysoutCastWorker {
             }
         }
 
-        void stop() {
-            running = false;
-        }
-
-        private boolean isActive() {
-            return running;
+        void deactivate() {
+            isActive = false;
         }
 
     }

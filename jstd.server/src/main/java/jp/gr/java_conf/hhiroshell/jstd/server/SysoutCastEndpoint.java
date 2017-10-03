@@ -3,11 +3,12 @@ package jp.gr.java_conf.hhiroshell.jstd.server;
 import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
 
 /**
- * Most simple implementation for WebSocket and CDI.
+ * The WebSocket endpoint of standard output casting
  *
- * @author hhayakaw
+ * @author hhiroshell
  */
 @ServerEndpoint(value = "/stdcast")
 public class SysoutCastEndpoint {
@@ -17,18 +18,30 @@ public class SysoutCastEndpoint {
 
     @OnOpen
     public void open(Session session) {
-        worker.addClient(session);
+        try {
+            worker.addClient(session);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @OnClose
     public void close(Session session) {
-        worker.removeClient(session.getId());
+        try {
+            worker.removeClient(session.getId());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @OnError
     public void error(Throwable t) {
         t.printStackTrace();
-        worker.removeAllClient();
+        try {
+            worker.removeAllClient();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @OnMessage
