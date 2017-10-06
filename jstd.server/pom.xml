@@ -16,13 +16,18 @@
     </parent>
 
     <properties>
-        <wls-admin-url>t3://localhost:7001</wls-admin-url>
+        <wls-docker-image>hhiroshell/wls:12.2.1.2</wls-docker-image>
+        <wls-docker-port-org>7001</wls-docker-port-org>
+        <wls-docker-port-dst>7001</wls-docker-port-dst>
+        <wls-host>localhost</wls-host>
+        <wls-t3-url>t3://${wls-host}:${wls-docker-port-dst}</wls-t3-url>
+        <wls-console-url>http://${wls-host}:${wls-docker-port-dst}/console</wls-console-url>
         <wls-admin-user>weblogic</wls-admin-user>
         <wls-admin-password>wlsadmin0</wls-admin-password>
-        <wls-targets>AdminServer</wls-targets>
+        <wls-deploy-targets>AdminServer</wls-deploy-targets>
         <accs-application-name>jstd</accs-application-name>
         <accs-runtime>javaee</accs-runtime>
-        <accs-notification-email>hiroshi.hayakawa@oracle.com</accs-notification-email>
+        <accs-notification-email>email@example.com</accs-notification-email>
     </properties>
 
     <dependencies>
@@ -99,17 +104,17 @@
                     <images>
                         <image>
                             <alias>wls12c-it</alias>
-                            <name>hhiroshell/wls:12.2.1.2</name>
+                            <name>${wls-docker-image}</name>
                             <run>
                                 <namingStrategy>alias</namingStrategy>
-                                <ports>7001:7001</ports>
+                                <ports>${wls-docker-port-dst}:${wls-docker-port-org}</ports>
                                 <wait>
                                     <http>
-                                        <url>http://localhost:7001/console</url>
+                                        <url>${wls-console-url}</url>
                                         <method>GET</method>
                                         <status>200</status>
                                     </http>
-                                    <time>24000</time>
+                                    <time>32000</time>
                                 </wait>
                             </run>
                         </image>
@@ -144,11 +149,11 @@
                             <goal>redeploy</goal>
                         </goals>
                         <configuration>
-                            <adminurl>${wls-admin-url}</adminurl>
+                            <adminurl>${wls-t3-url}</adminurl>
                             <user>${wls-admin-user}</user>
                             <password>${wls-admin-password}</password>
                             <name>${project.build.finalName}</name>
-                            <targets>${wls-targets}</targets>
+                            <targets>${wls-deploy-targets}</targets>
                             <upload>true</upload>
                             <remote>false</remote>
                             <source>${project.build.directory}/${project.build.finalName}.${project.packaging}</source>
